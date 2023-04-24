@@ -1,5 +1,6 @@
 import zmq
 import threading
+from termcolor import colored
 
 class Server:
     def __init__(self, addr):
@@ -7,17 +8,19 @@ class Server:
         self.addr = addr
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.REP)
-        print(f"Server binding to socket at: {self.addr}")
+        print(colored(f"Server binding to socket at: {self.addr}", "green"))
         self.socket.bind("tcp://*:{}".format(self.addr))
-        print(f"Server binding to socket at: {self.addr} was successful")
+        print(colored(f"Server binding to socket at: {self.addr} was successful", "green"))
 
     def run(self):
         # Loop indefinitely, waiting for incoming messages and handling them
         while True:
-            print(f"Server listening at: {self.addr}")
+            print(colored(f"Server listening at: {self.addr}", "green"))
             message = self.socket.recv()
             response = self.handle_message(message)
+            print(colored(f"Server sending message back: {self.addr}", "green"))
             self.socket.send(response)
+            print(colored(f"Server sending message back: {self.addr} successful", "green"))
 
     def handle_message(self, message):
         # This method should be overridden by a subclass to handle the message
@@ -32,7 +35,7 @@ def start_servers(num_servers):
     threads = []
     for i in range(num_servers):
         # Create a new instance of the EchoServer subclass with a unique address
-        server = EchoServer(f"tcp://*:555{i}")
+        server = EchoServer(colored(f"tcp://*:555{i}", "green"))
         # Create a new thread to run the server instance
         thread = threading.Thread(target=server.run)
         # Start the thread and add it to the list of threads

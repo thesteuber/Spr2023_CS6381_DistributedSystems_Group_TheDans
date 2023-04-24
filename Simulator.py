@@ -2,6 +2,7 @@ import zmq
 import multiprocessing as mp
 from LoadBalancer import *
 from Server import *
+from termcolor import colored
 
 # Define a function that will run in a separate process
 def client_process():
@@ -9,16 +10,18 @@ def client_process():
     context = zmq.Context()
     socket = context.socket(zmq.REQ)
     lb_addr = "tcp://localhost:5555"
-    print(f"Client connecting to {lb_addr}.")
+    print(colored(f"Client connecting to {lb_addr}.", "yellow"))
     socket.connect(lb_addr)
-    print(f"Client connecting to {lb_addr} was successful.")
+    print(colored(f"Client connecting to {lb_addr} was successful.", "yellow"))
 
     # Send five requests to the load balancer and print the responses
     for request in range(5):
-        print("Sending message: Hello")
+        print(colored("CLIENT: Sending message: Hello", "yellow"))
         socket.send(b"Hello")
+
+        print(colored("CLIENT: waiting for response", "yellow"))
         message = socket.recv()
-        print(f"Received reply {request}: {message.decode()}")
+        print(colored(f"CLIENT: Received reply {request}: {message.decode()}", "yellow"))
 
 # Define a function that will run in a separate process
 def server_process(addr):
@@ -31,18 +34,18 @@ if __name__ == "__main__":
 
      # Start the load balancer in a separate thread
     frontend_addr = "tcp://*:5555"
-    backend_addr = "tcp://*:5556"
-    lb = LoadBalancer(frontend_addr, backend_addr)
+    backend_addrs = ["tcp://localhost:5560", "tcp://localhost:5561"]
+    lb = LoadBalancer(frontend_addr, backend_addrs)
     lb_thread = threading.Thread(target=lb.run)
     lb_thread.start()
     
-    print(f"Load Balancer running at {frontend_addr} with backend at {backend_addr}.")
+    print(f"Load Balancer running at {frontend_addr} with backends at .")
 
     # Start five instances of the EchoServer subclass in separate processes
     num_servers = 2
     processes = []
     for i in range(num_servers):
-        addr = f"556{i+1}"
+        addr = f"556{i}"
         print(f"Server Process running at {addr}.")
         process = mp.Process(target=server_process, args=(addr,))
         processes.append(process)
