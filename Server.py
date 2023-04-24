@@ -7,11 +7,14 @@ class Server:
         self.addr = addr
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.REP)
+        print(f"Server binding to socket at: {self.addr}")
         self.socket.bind(self.addr)
+        print(f"Server binding to socket at: {self.addr} was successful")
 
     def run(self):
         # Loop indefinitely, waiting for incoming messages and handling them
         while True:
+            print(f"Server listening at: {self.addr}")
             message = self.socket.recv()
             response = self.handle_message(message)
             self.socket.send(response)
