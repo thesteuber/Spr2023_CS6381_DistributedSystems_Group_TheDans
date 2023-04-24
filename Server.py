@@ -8,7 +8,7 @@ class Server:
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.REP)
         print(f"Server binding to socket at: {self.addr}")
-        self.socket.bind(self.addr)
+        self.socket.bind("tcp://*:{}".format(self.addr))
         print(f"Server binding to socket at: {self.addr} was successful")
 
     def run(self):

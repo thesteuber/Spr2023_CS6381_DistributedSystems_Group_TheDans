@@ -38,7 +38,7 @@ if __name__ == "__main__":
     num_servers = 2
     processes = []
     for i in range(num_servers):
-        addr = f"tcp://localhost:556{i+1}"
+        addr = f"556{i+1}"
         print(f"Server Process running at {addr}.")
         process = mp.Process(target=server_process, args=(addr,))
         processes.append(process)
