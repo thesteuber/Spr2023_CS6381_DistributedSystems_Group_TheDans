@@ -8,10 +8,14 @@ def client_process():
     # Create a ZeroMQ context and socket, and connect to the load balancer
     context = zmq.Context()
     socket = context.socket(zmq.REQ)
-    socket.connect("tcp://localhost:5555")
+    lb_addr = "tcp://localhost:5555"
+    print(f"Client connecting to {lb_addr}.")
+    socket.connect(lb_addr)
+    print(f"Client connecting to {lb_addr} was successful.")
 
     # Send five requests to the load balancer and print the responses
     for request in range(5):
+        print("Sending message: Hello")
         socket.send(b"Hello")
         message = socket.recv()
         print(f"Received reply {request}: {message.decode()}")
@@ -44,12 +48,13 @@ if __name__ == "__main__":
         processes.append(process)
         process.start()
 
-    # Start two instances of the client process
-    # for i in range(2):
-    #     process = mp.Process(target=client_process)
-    #     processes.append(process)
-    #     process.start()
+    #Start two instances of the client process
+    for i in range(2):
+        process = mp.Process(target=client_process)
+        processes.append(process)
+        process.start()
 
     # Wait for all processes to finish
+    print("Waiting for processes to complete.")
     for process in processes:
         process.join()
