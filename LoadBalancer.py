@@ -10,9 +10,6 @@ class LoadBalancer:
         
         # Bind the frontend socket to the specified address
         self.frontend_socket.bind(frontend_addr)
-
-        print("FLAG 0")
-        print(frontend_addr)
         
         # Connect the backend socket to each of the specified server addresses
         for addr in backend_addrs:
