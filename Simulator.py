@@ -50,7 +50,7 @@ if __name__ == "__main__":
         print("'single' passed: running single load balancer")
         num_load_balancers = 1
     elif sys.argv[1].lower() == "distributed":
-        print("'distributed' argument passed: running distributed load balancers")
+        print("'distributed' passed: running distributed load balancers")
         num_load_balancers = 10
     else:
         print("Unknown argument passed: running single load balancer")
