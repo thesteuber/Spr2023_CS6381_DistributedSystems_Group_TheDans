@@ -13,17 +13,17 @@ def write_latency_row(time_sent, filename):
     f.close()
 
 # Define a function that will run in a separate process
-def client_process(output_file):
+def client_process(output_file, lb_port, messages_per_client):
     # Create a ZeroMQ context and socket, and connect to the load balancer
     context = zmq.Context()
     socket = context.socket(zmq.REQ)
-    lb_addr = "tcp://localhost:5555"
+    lb_addr = f"tcp://localhost:{lb_port}"
     print(colored(f"Client connecting to {lb_addr}.", "yellow"))
     socket.connect(lb_addr)
     print(colored(f"Client connecting to {lb_addr} was successful.", "yellow"))
 
     # Send five requests to the load balancer and print the responses
-    for request in range(250):
+    for request in range(messages_per_client):
         print(colored("CLIENT: Sending message: Hello", "yellow"))
         time_sent = datetime.datetime.now().isoformat(sep=" ")
         socket.send(b"Hello")
@@ -42,13 +42,24 @@ def server_process(addr):
 if __name__ == "__main__":
     print(f"__name___ == __main__.")
 
-     # Start the load balancer in a separate thread
-    frontend_addr = "tcp://*:5555"
-    # frontend_addr = ["tcp://localhost:5555
-    backend_addrs = ["tcp://localhost:5560", "tcp://localhost:5561"]
-    lb = LoadBalancer(frontend_addr, backend_addrs)
-    lb_thread = threading.Thread(target=lb.run)
-    lb_thread.start()
+    num_load_balancers = 10
+    num_clients = 100
+    num_servers = 50
+    messages_per_client = 20
+
+    backend_addrs = []
+    for i in range(num_servers):
+        backend_addrs.append(f"tcp://localhost:556{i}")
+
+    lb_ports = []
+    for j in range(num_load_balancers):
+        # Start the load balancer in a separate thread
+        port = f"500{j}"
+        frontend_addr = f"tcp://*:{port}"
+        lb_ports.append(port)
+        lb = LoadBalancer(frontend_addr, backend_addrs)
+        lb_thread = threading.Thread(target=lb.run)
+        lb_thread.start()
     
     print(f"Load Balancer running at {frontend_addr} with backends at .")
 
@@ -57,7 +68,7 @@ if __name__ == "__main__":
     f.close()
 
     # Start five instances of the EchoServer subclass in separate processes
-    num_servers = 2
+    
     processes = []
     for i in range(num_servers):
         addr = f"556{i}"
@@ -67,8 +78,9 @@ if __name__ == "__main__":
         process.start()
 
     #Start two instances of the client process
-    for i in range(2):
-        process = mp.Process(target=client_process, args=("output.csv",))
+    clients_initialized = 0
+    for i in range(num_clients):
+        process = mp.Process(target=client_process, args=("output.csv", lb_ports[clients_initialized % len(lb_ports)], messages_per_client,))
         processes.append(process)
         process.start()
 
