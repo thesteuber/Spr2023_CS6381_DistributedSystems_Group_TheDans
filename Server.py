@@ -29,7 +29,7 @@ class Server:
 class EchoServer(Server):
     def handle_message(self, message):
         # This subclass simply echoes back the message it receives
-        return bytes(message.decode('utf-8') + "_DAN", 'utf-8')
+        return bytes(message.decode('utf-8') + "", 'utf-8')
         # return message
 
 def start_servers(num_servers):
