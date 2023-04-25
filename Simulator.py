@@ -34,6 +34,7 @@ if __name__ == "__main__":
 
      # Start the load balancer in a separate thread
     frontend_addr = "tcp://*:5555"
+    # frontend_addr = ["tcp://localhost:5555
     backend_addrs = ["tcp://localhost:5560", "tcp://localhost:5561"]
     lb = LoadBalancer(frontend_addr, backend_addrs)
     lb_thread = threading.Thread(target=lb.run)
