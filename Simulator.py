@@ -4,6 +4,7 @@ from LoadBalancer import *
 from Server import *
 from termcolor import colored
 import datetime
+import sys
 
 def write_latency_row(time_sent, filename):
     f = open(filename, "a")
@@ -42,7 +43,19 @@ def server_process(addr):
 if __name__ == "__main__":
     print(f"__name___ == __main__.")
 
-    num_load_balancers = 10
+    if len(sys.argv) < 2:
+        print("No argument passed: running single load balancer")
+        num_load_balancers = 1
+    elif sys.argv[1].lower() == "single":
+        print("'single' passed: running single load balancer")
+        num_load_balancers = 1
+    elif sys.argv[1].lower() == "distributed":
+        print("'distributed' passed: running distributed load balancers")
+        num_load_balancers = 10
+    else:
+        print("Unknown argument passed: running single load balancer")
+        num_load_balancers = 1
+    
     num_clients = 100
     num_servers = 50
     messages_per_client = 20
