@@ -3,9 +3,17 @@ import multiprocessing as mp
 from LoadBalancer import *
 from Server import *
 from termcolor import colored
+import datetime
+
+def write_latency_row(time_sent, filename):
+    f = open(filename, "a")
+    time_received = datetime.datetime.now().isoformat(sep=" ")
+    time_elapsed = (datetime.datetime.fromisoformat(time_received) - datetime.datetime.fromisoformat(time_sent)).microseconds / 1000
+    f.write(time_sent + "," + time_received + "," + str(time_elapsed) + "\n")
+    f.close()
 
 # Define a function that will run in a separate process
-def client_process():
+def client_process(output_file):
     # Create a ZeroMQ context and socket, and connect to the load balancer
     context = zmq.Context()
     socket = context.socket(zmq.REQ)
@@ -15,13 +23,15 @@ def client_process():
     print(colored(f"Client connecting to {lb_addr} was successful.", "yellow"))
 
     # Send five requests to the load balancer and print the responses
-    for request in range(5):
+    for request in range(250):
         print(colored("CLIENT: Sending message: Hello", "yellow"))
+        time_sent = datetime.datetime.now().isoformat(sep=" ")
         socket.send(b"Hello")
 
         print(colored("CLIENT: waiting for response", "yellow"))
         message = socket.recv()
         print(colored(f"CLIENT: Received reply {request}: {message.decode()}", "yellow"))
+        write_latency_row(time_sent, output_file)
 
 # Define a function that will run in a separate process
 def server_process(addr):
@@ -42,6 +52,10 @@ if __name__ == "__main__":
     
     print(f"Load Balancer running at {frontend_addr} with backends at .")
 
+    f = open("output.csv", "w+")
+    f.write("time_sent,time_received,time_elapsed\n")
+    f.close()
+
     # Start five instances of the EchoServer subclass in separate processes
     num_servers = 2
     processes = []
@@ -54,7 +68,7 @@ if __name__ == "__main__":
 
     #Start two instances of the client process
     for i in range(2):
-        process = mp.Process(target=client_process)
+        process = mp.Process(target=client_process, args=("output.csv",))
         processes.append(process)
         process.start()
 
