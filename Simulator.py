@@ -42,6 +42,8 @@ def server_process(addr):
 if __name__ == "__main__":
     print(f"__name___ == __main__.")
 
+    clients = 100
+
      # Start the load balancer in a separate thread
     frontend_addr = "tcp://*:5555"
     # frontend_addr = ["tcp://localhost:5555
@@ -67,7 +69,7 @@ if __name__ == "__main__":
         process.start()
 
     #Start two instances of the client process
-    for i in range(2):
+    for i in range(clients):
         process = mp.Process(target=client_process, args=("output.csv",))
         processes.append(process)
         process.start()
