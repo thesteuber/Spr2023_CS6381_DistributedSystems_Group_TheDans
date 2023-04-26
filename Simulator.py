@@ -5,6 +5,7 @@ from Server import *
 from termcolor import colored
 import datetime
 import sys
+import argparse # for argument parsing
 
 def write_latency_row(time_sent, filename):
     f = open(filename, "a")
@@ -40,25 +41,30 @@ def server_process(addr):
     server = EchoServer(addr)
     server.run()
 
+###################################
+#
+# Parse command line arguments
+#
+###################################
+def parseCmdLineArgs ():
+  # instantiate a ArgumentParser object
+  parser = argparse.ArgumentParser (description="Publisher Application")
+  
+  parser.add_argument ("-l", "--load_balancers", type=int,default=1, help="Number of Load Balancers")
+  parser.add_argument ("-c", "--clients", type=int,default=100, help="Number of Clients")
+  parser.add_argument ("-s", "--servers", type=int,default=50, help="Number of Servers")
+  parser.add_argument ("-m", "--messages_per", type=int,default=100, help="Number of messages that will be sent per client")
+
+  return parser.parse_args()
+
 if __name__ == "__main__":
     print(f"__name___ == __main__.")
+    args = parseCmdLineArgs ()
 
-    if len(sys.argv) < 2:
-        print("No argument passed: running single load balancer")
-        num_load_balancers = 1
-    elif sys.argv[1].lower() == "single":
-        print("'single' passed: running single load balancer")
-        num_load_balancers = 1
-    elif sys.argv[1].lower() == "distributed":
-        print("'distributed' passed: running distributed load balancers")
-        num_load_balancers = 10
-    else:
-        print("Unknown argument passed: running single load balancer")
-        num_load_balancers = 1
-    
-    num_clients = 100
-    num_servers = 50
-    messages_per_client = 20
+    num_load_balancers = args.load_balancers
+    num_clients = args.clients
+    num_servers = args.servers
+    messages_per_client = args.messages_per
 
     backend_addrs = []
     for i in range(num_servers):
